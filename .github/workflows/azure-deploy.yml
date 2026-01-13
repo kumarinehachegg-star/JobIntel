@@ -73,7 +73,7 @@ jobs:
             node --version || true;
             exit 1;
           }
-          echo "Installed node modules in backend:" && ls -la backend/node_modules | head -20
+          echo "Installed node modules in backend:" && (ls -la backend/node_modules | head -20 || true)
 
       - name: Package node_modules for Azure extraction
         run: |
@@ -83,7 +83,7 @@ jobs:
           if [ -d node_modules ]; then
             tar -czf node_modules.tar.gz node_modules
             echo "Created node_modules.tar.gz:" && ls -lh node_modules.tar.gz
-            tar -tf node_modules.tar.gz | head -20
+            (tar -tf node_modules.tar.gz | head -20) || true
           else
             echo "ERROR: backend/node_modules not found — cannot create tarball" >&2
             ls -la .. || true
