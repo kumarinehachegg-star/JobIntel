@@ -51,8 +51,8 @@ const JobsPage = () => {
   const [sortBy, setSortBy] = useState<'relevance' | 'date' | 'salary'>('relevance');
   const [showFilters, setShowFilters] = useState(false);
 
-  // Backend base URL (set VITE_BACKEND_URL in production if backend is on a different host)
-  const backendBase = (import.meta as any).env?.VITE_BACKEND_URL || '';
+  // Backend base URL (set VITE_API_URL in production if backend is on a different host)
+  const backendBase = (import.meta as any).env?.VITE_API_URL || '';
 
   // Fetch jobs from backend (extracted so we can call it on demand)
   const [backendError, setBackendError] = useState<string | null>(null);

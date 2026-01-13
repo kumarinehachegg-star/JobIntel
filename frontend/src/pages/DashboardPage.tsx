@@ -54,7 +54,7 @@ const DashboardPage = () => {
   };
 
   // Real-time data: fetch from backend and stay in sync with app store
-  const backendBase = (import.meta as any).env?.VITE_BACKEND_URL || '';
+  const backendBase = (import.meta as any).env?.VITE_API_URL || '';
   const [matchedJobs, setMatchedJobs] = useState<any[]>([]);
   const [profileFields, setProfileFields] = useState<any[]>([]);
   const appStore = useApplicationStore();
