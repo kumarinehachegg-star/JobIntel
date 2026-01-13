@@ -1,0 +1,255 @@
+import { useState } from 'react';
+import { Search, Filter, Download, Users, Crown, Zap, TrendingUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { adminStats, userAnalytics } from '@/data/adminMockData';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
+
+// Mock user data
+const mockUsers = [
+  { id: '1', name: 'John Doe', email: 'john@example.com', tier: 'ultra', joinedAt: '2024-01-05', applications: 12, lastActive: '2 hours ago' },
+  { id: '2', name: 'Jane Smith', email: 'jane@example.com', tier: 'premium', joinedAt: '2024-01-08', applications: 8, lastActive: '5 hours ago' },
+  { id: '3', name: 'Mike Johnson', email: 'mike@example.com', tier: 'free', joinedAt: '2024-01-10', applications: 3, lastActive: '1 day ago' },
+  { id: '4', name: 'Sarah Wilson', email: 'sarah@example.com', tier: 'premium', joinedAt: '2024-01-12', applications: 15, lastActive: '30 mins ago' },
+  { id: '5', name: 'Alex Brown', email: 'alex@example.com', tier: 'free', joinedAt: '2024-01-15', applications: 1, lastActive: '3 days ago' },
+  { id: '6', name: 'Emily Davis', email: 'emily@example.com', tier: 'ultra', joinedAt: '2024-01-18', applications: 22, lastActive: '1 hour ago' },
+  { id: '7', name: 'Chris Lee', email: 'chris@example.com', tier: 'free', joinedAt: '2024-01-20', applications: 0, lastActive: 'Just now' },
+  { id: '8', name: 'Lisa Chen', email: 'lisa@example.com', tier: 'premium', joinedAt: '2024-01-22', applications: 6, lastActive: '4 hours ago' },
+];
+
+const tierColors: Record<string, string> = {
+  free: 'bg-gray-100 text-gray-800',
+  premium: 'bg-purple-100 text-purple-800',
+  ultra: 'bg-amber-100 text-amber-800',
+};
+
+const tierIcons: Record<string, React.ReactNode> = {
+  free: <Users className="h-3 w-3" />,
+  premium: <Crown className="h-3 w-3" />,
+  ultra: <Zap className="h-3 w-3" />,
+};
+
+const pieData = [
+  { name: 'Free', value: adminStats.totalUsers - adminStats.premiumUsers - adminStats.ultraUsers, color: 'hsl(var(--muted-foreground))' },
+  { name: 'Premium', value: adminStats.premiumUsers, color: '#8b5cf6' },
+  { name: 'Ultra', value: adminStats.ultraUsers, color: '#f59e0b' },
+];
+
+export default function AdminUsers() {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredUsers = mockUsers.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">User Analytics</h1>
+          <p className="text-muted-foreground">Monitor user growth and engagement</p>
+        </div>
+        <Button variant="outline" className="gap-2">
+          <Download className="h-4 w-4" />
+          Export Users
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Total Users</span>
+            </div>
+            <div className="mt-2 text-3xl font-bold text-foreground">
+              {adminStats.totalUsers.toLocaleString()}
+            </div>
+            <p className="text-sm text-green-600">+18% from last month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Crown className="h-5 w-5 text-purple-600" />
+              <span className="text-sm text-muted-foreground">Premium Users</span>
+            </div>
+            <div className="mt-2 text-3xl font-bold text-foreground">
+              {adminStats.premiumUsers.toLocaleString()}
+            </div>
+            <p className="text-sm text-green-600">+24% from last month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-amber-600" />
+              <span className="text-sm text-muted-foreground">Ultra Users</span>
+            </div>
+            <div className="mt-2 text-3xl font-bold text-foreground">
+              {adminStats.ultraUsers.toLocaleString()}
+            </div>
+            <p className="text-sm text-green-600">+32% from last month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-blue-600" />
+              <span className="text-sm text-muted-foreground">Conversion Rate</span>
+            </div>
+            <div className="mt-2 text-3xl font-bold text-foreground">14.2%</div>
+            <p className="text-sm text-green-600">+2.4% from last month</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Charts */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>User Growth Over Time</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={userAnalytics}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="date" className="text-xs" />
+                  <YAxis className="text-xs" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                    }}
+                  />
+                  <Line type="monotone" dataKey="free" stroke="hsl(var(--muted-foreground))" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="premium" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="ultra" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>User Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4 flex justify-center gap-4">
+              {pieData.map((item) => (
+                <div key={item.name} className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className="text-sm text-muted-foreground">{item.name}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Users Table */}
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle>Recent Users</CardTitle>
+            <div className="flex gap-2">
+              <div className="relative flex-1 sm:w-[300px]">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search users..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Button variant="outline" size="icon">
+                <Filter className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Tier</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead>Applications</TableHead>
+                  <TableHead>Last Active</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Badge className={tierColors[user.tier]}>
+                        <span className="mr-1">{tierIcons[user.tier]}</span>
+                        {user.tier.charAt(0).toUpperCase() + user.tier.slice(1)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{user.joinedAt}</TableCell>
+                    <TableCell>{user.applications}</TableCell>
+                    <TableCell className="text-muted-foreground">{user.lastActive}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

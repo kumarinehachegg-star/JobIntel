@@ -1,0 +1,17 @@
+{
+  "name": "jobintel-monorepo",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm --workspace=frontend run dev\" \"npm --workspace=backend run dev\"",
+    "install:all": "npm install --workspaces",
+    "build": "npm --workspaces run build",
+    "lint": "npm --workspaces run lint || true"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

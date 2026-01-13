@@ -1,0 +1,96 @@
+import { Request, Response } from 'express';
+import { Skill } from '../models/Skill';
+import { ProfileField } from '../models/ProfileField';
+import publishRealtime from '../utils/realtime';
+
+// Skills CRUD
+export const listAdminSkills = async (_req: Request, res: Response) => {
+  try {
+    const items = await Skill.find().sort({ name: 1 }).lean();
+    return res.json(items);
+  } catch (err: any) {
+    console.error('listAdminSkills', err);
+    return res.status(500).json({ error: err?.message || 'server error' });
+  }
+};
+
+export const createAdminSkill = async (req: Request, res: Response) => {
+  try {
+    const { name, custom = true } = req.body;
+    if (!name) return res.status(400).json({ error: 'name required' });
+    const existing = await Skill.findOne({ name: { $regex: `^${name}$`, $options: 'i' } });
+    if (existing) return res.status(409).json({ error: 'skill already exists' });
+    const skill = await Skill.create({ name: String(name).trim(), custom });
+    publishRealtime('realtime:skills', { type: 'skills', action: 'create', skill });
+    return res.status(201).json(skill);
+  } catch (err: any) {
+    console.error('createAdminSkill', err);
+    return res.status(500).json({ error: err?.message || 'server error' });
+  }
+};
+
+export const deleteAdminSkill = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const doc = await Skill.findByIdAndDelete(id);
+    if (!doc) return res.status(404).json({ error: 'not found' });
+    publishRealtime('realtime:skills', { type: 'skills', action: 'delete', id });
+    return res.json({ success: true });
+  } catch (err: any) {
+    console.error('deleteAdminSkill', err);
+    return res.status(500).json({ error: err?.message || 'server error' });
+  }
+};
+
+// Profile Fields CRUD
+export const listProfileFields = async (_req: Request, res: Response) => {
+  try {
+    const items = await ProfileField.find().sort({ createdAt: 1 }).lean();
+    return res.json(items);
+  } catch (err: any) {
+    console.error('listProfileFields', err);
+    return res.status(500).json({ error: err?.message || 'server error' });
+  }
+};
+
+export const createProfileField = async (req: Request, res: Response) => {
+  try {
+    const { key, label, type = 'text', required = false, options = [] } = req.body;
+    if (!key || !label) return res.status(400).json({ error: 'key and label required' });
+    const existing = await ProfileField.findOne({ key });
+    if (existing) return res.status(409).json({ error: 'field key already exists' });
+    const field = await ProfileField.create({ key, label, type, required, options });
+    publishRealtime('realtime:profile_fields', { type: 'profile_fields', action: 'create', field });
+    return res.status(201).json(field);
+  } catch (err: any) {
+    console.error('createProfileField', err);
+    return res.status(500).json({ error: err?.message || 'server error' });
+  }
+};
+
+export const updateProfileField = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const update = req.body;
+    const field = await ProfileField.findByIdAndUpdate(id, update, { new: true }).lean();
+    if (!field) return res.status(404).json({ error: 'not found' });
+    publishRealtime('realtime:profile_fields', { type: 'profile_fields', action: 'update', field });
+    return res.json(field);
+  } catch (err: any) {
+    console.error('updateProfileField', err);
+    return res.status(500).json({ error: err?.message || 'server error' });
+  }
+};
+
+export const deleteProfileField = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const doc = await ProfileField.findByIdAndDelete(id);
+    if (!doc) return res.status(404).json({ error: 'not found' });
+    publishRealtime('realtime:profile_fields', { type: 'profile_fields', action: 'delete', id });
+    return res.json({ success: true });
+  } catch (err: any) {
+    console.error('deleteProfileField', err);
+    return res.status(500).json({ error: err?.message || 'server error' });
+  }
+};

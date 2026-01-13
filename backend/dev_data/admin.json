@@ -1,0 +1,9 @@
+{
+  "email": "admin@jobintel.local",
+  "passwordHash": "$2a$10$aEt9nvZaIUdk48S5RZgNmupUQuzpxOzH8of0nlWGCIbQLXEiNTnWu",
+  "roles": [
+    "admin"
+  ],
+  "name": "Admin",
+  "createdAt": "2026-01-12T11:53:58.853Z"
+}

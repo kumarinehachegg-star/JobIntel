@@ -1,0 +1,116 @@
+openapi: 3.0.3
+info:
+  title: JobIntel API
+  version: 0.1.0
+  description: Minimal OpenAPI spec for JobIntel jobs endpoints
+servers:
+  - url: http://localhost:4000
+paths:
+  /api/jobs:
+    get:
+      summary: List jobs
+      responses:
+        '200':
+          description: A list of jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Job'
+    post:
+      summary: Create a job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobInput'
+      responses:
+        '201':
+          description: Created job
+  /api/jobs/{id}:
+    get:
+      summary: Get job by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+    patch:
+      summary: Update job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobInput'
+      responses:
+        '200':
+          description: Updated job
+    delete:
+      summary: Delete job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted
+  /api/jobs/ingest:
+    post:
+      summary: Ingest job from raw HTML or url
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                rawHtml:
+                  type: string
+                company:
+                  type: object
+      responses:
+        '201':
+          description: Ingested job
+components:
+  schemas:
+    Job:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    JobInput:
+      type: object
+      properties:
+        title:
+          type: string
+        rawHtml:
+          type: string
+        meta:
+          type: object

@@ -1,0 +1,35 @@
+{
+  "name": "jobscout-backend",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "start": "node dist/index.js",
+    "seed": "ts-node src/seed.ts",
+    "scraper:run": "ts-node src/services/playwrightScraper.ts",
+    "scraper:schedule": "ts-node src/jobs/scrapeScheduler.ts"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "debug": "^4.3.4",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "mongodb-memory-server": "^8.16.1",
+    "mongoose": "^7.5.0",
+    "bullmq": "^1.79.0",
+    "ioredis": "^5.3.2",
+    "nodemailer": "^6.9.4",
+    "playwright": "^1.41.0",
+    "node-cron": "^3.0.2",
+    "node-fetch": "^3.3.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "ts-node-dev": "^2.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "1",
+    "html": "<html><head><title>Senior Backend Engineer</title></head><body><h1>Senior Backend Engineer</h1><p>We are hiring at Acme Corp in Bangalore, India. Remote ok.</p></body></html>",
+    "expected": { "title": "Senior Backend Engineer", "company": "Acme Corp", "location": "Bangalore" }
+  },
+  {
+    "id": "2",
+    "html": "<html><head><title>Frontend Developer - React</title></head><body><div>Join FooBar LLC as a Frontend Developer. Work from home.</div></body></html>",
+    "expected": { "title": "Frontend Developer - React", "company": "FooBar LLC", "location": "Remote" }
+  },
+  {
+    "id": "3",
+    "html": "<html><head><title>Data Scientist</title></head><body><p>Apply at DataWorks - New York, NY</p></body></html>",
+    "expected": { "title": "Data Scientist", "company": "DataWorks", "location": "New York" }
+  }
+]
