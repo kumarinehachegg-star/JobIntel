@@ -81,8 +81,12 @@ jobs:
           # remove any existing tarball to avoid stale content
           rm -f node_modules.tar.gz || true
           if [ -d node_modules ]; then
-            tar -czf node_modules.tar.gz node_modules
+            # Tar the CONTENTS of node_modules (with -C and .), not the directory itself
+            # This way when Azure extracts to /node_modules, it creates /node_modules/express etc
+            # not /node_modules/node_modules/express
+            tar -czf node_modules.tar.gz -C node_modules .
             echo "Created node_modules.tar.gz:" && ls -lh node_modules.tar.gz
+            echo "Tarball contents (first 20 entries):"
             (tar -tf node_modules.tar.gz | head -20) || true
           else
             echo "ERROR: backend/node_modules not found — cannot create tarball" >&2
