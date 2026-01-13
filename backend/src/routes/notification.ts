@@ -1,12 +1,14 @@
 import { Router } from "express";
 import { sendNotification } from "../controllers/notificationController";
+import { authenticateToken, requireRole } from "../middleware/auth";
 import IORedis from "ioredis";
 
 const REDIS_URL = process.env.REDIS_URL || undefined;
 
 const router = Router();
 
-router.post("/send", sendNotification);
+// Only admin can trigger bulk notifications for jobs
+router.post("/send", authenticateToken, requireRole('admin'), sendNotification);
 
 // Server-Sent Events stream for realtime notifications
 router.get('/stream', async (req, res) => {
