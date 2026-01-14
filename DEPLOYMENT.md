@@ -10,7 +10,7 @@ See steps below for quick setup and required environment variables.
 ## Backend (Render)
 1. Create a new **Web Service** on Render and connect your GitHub repository.
 2. Use the following build and start commands (or rely on `render.yaml` in repo):
-   - Build command: `npm ci --prefix backend && npm run build --prefix backend`
+   - Build command: `npm ci && npm run build -w backend` (runs `npm ci` at repo root then builds the backend workspace)
    - Start command: `npm start --prefix backend`
 3. Set required environment variables in Render (do not commit secrets):
    - `MONGO_URI`
