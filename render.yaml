@@ -18,3 +18,5 @@ services:
         value: ""
       - key: GITHUB_CALLBACK_URL
         value: "https://<your-backend>.onrender.com/auth/github/callback"
+      - key: CORS_ORIGIN
+        value: "https://jobintell.netlify.app"
