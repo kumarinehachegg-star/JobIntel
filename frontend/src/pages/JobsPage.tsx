@@ -47,6 +47,8 @@ const JobsPage = () => {
   const [locationFilter, setLocationFilter] = useState('');
   const [typeFilters, setTypeFilters] = useState<JobType[]>([]);
   const [experienceFilters, setExperienceFilters] = useState<ExperienceLevel[]>([]);
+  const [batchFilters, setBatchFilters] = useState<number[]>([]);
+  const [companyFilters, setCompanyFilters] = useState<string[]>([]);
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [sortBy, setSortBy] = useState<'relevance' | 'date' | 'salary'>('relevance');
   const [showFilters, setShowFilters] = useState(false);
@@ -258,6 +260,28 @@ const JobsPage = () => {
       jobs = jobs.filter((job) => experienceFilters.includes(job.experienceLevel));
     }
 
+    // Batch filter
+    if (batchFilters.length > 0) {
+      jobs = jobs.filter((job) => {
+        if (!job.batch || job.batch.length === 0) return false;
+        return batchFilters.some((batch) =>
+          job.batch?.some((b) => parseInt(b) === batch)
+        );
+      });
+    }
+
+    // Company filter
+    if (companyFilters.length > 0) {
+      console.debug('Applying company filter:', companyFilters);
+      jobs = jobs.filter((job) => {
+        const matches = companyFilters.some((company) =>
+          job.company.name.toLowerCase().includes(company.toLowerCase())
+        );
+        console.debug('Job:', job.company.name, 'Matches:', matches);
+        return matches;
+      });
+    }
+
     // Remote filter
     if (remoteOnly) {
       jobs = jobs.filter((job) => job.isRemote);
@@ -272,9 +296,15 @@ const JobsPage = () => {
       jobs.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
     }
 
-    console.debug('filteredJobs: all=', allJobs.length, 'result=', jobs.length);
+    console.debug('filteredJobs: all=', allJobs.length, 'filtered=', jobs.length, 'companyFilters=', companyFilters);
     return jobs;
-  }, [searchQuery, locationFilter, typeFilters, experienceFilters, remoteOnly, sortBy, user, allJobs]);
+  }, [searchQuery, locationFilter, typeFilters, experienceFilters, batchFilters, companyFilters, remoteOnly, sortBy, user, allJobs]);
+
+  // Get unique companies for filter
+  const uniqueCompanies = useMemo(() => {
+    const companies = new Set(allJobs.map((job) => job.company.name));
+    return Array.from(companies).sort();
+  }, [allJobs]);
 
   const toggleTypeFilter = (type: JobType) => {
     setTypeFilters((prev) =>
@@ -288,18 +318,32 @@ const JobsPage = () => {
     );
   };
 
+  const toggleBatchFilter = (batch: number) => {
+    setBatchFilters((prev) =>
+      prev.includes(batch) ? prev.filter((b) => b !== batch) : [...prev, batch]
+    );
+  };
+
+  const toggleCompanyFilter = (company: string) => {
+    setCompanyFilters((prev) =>
+      prev.includes(company) ? prev.filter((c) => c !== company) : [...prev, company]
+    );
+  };
+
   const clearFilters = () => {
     setSearchQuery('');
     setLocationFilter('');
     setTypeFilters([]);
     setExperienceFilters([]);
+    setBatchFilters([]);
+    setCompanyFilters([]);
     setRemoteOnly(false);
     // Re-fetch jobs from backend when clearing filters to ensure live data shows up
     fetchJobs();
   };
 
   const hasActiveFilters =
-    searchQuery || locationFilter || typeFilters.length > 0 || experienceFilters.length > 0 || remoteOnly;
+    searchQuery || locationFilter || typeFilters.length > 0 || experienceFilters.length > 0 || batchFilters.length > 0 || companyFilters.length > 0 || remoteOnly;
 
   const formatSalary = (job: Job) => {
     if (!job.salary) return null;
@@ -315,6 +359,16 @@ const JobsPage = () => {
       return n.toString();
     };
     return `${currency === 'INR' ? '₹' : '$'}${formatNum(min)} - ${formatNum(max)}/${period === 'yearly' ? 'yr' : period === 'monthly' ? 'mo' : 'hr'}`;
+  };
+
+  const isJobForFreshers = (job: Job) => {
+    if (!job.batch || job.batch.length === 0) return false;
+    const currentYear = new Date().getFullYear();
+    return job.batch.some((b) => {
+      const batchYear = parseInt(b);
+      // Mark as fresher if job is for current year or previous year (2026 or 2025 if current year is 2026)
+      return batchYear === currentYear || batchYear === currentYear - 1;
+    });
   };
 
   return (
@@ -351,7 +405,7 @@ const JobsPage = () => {
                 Filters
                 {hasActiveFilters && (
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-foreground text-xs">
-                    {typeFilters.length + experienceFilters.length + (remoteOnly ? 1 : 0)}
+                    {typeFilters.length + experienceFilters.length + batchFilters.length + companyFilters.length + (remoteOnly ? 1 : 0)}
                   </span>
                 )}
               </Button>
@@ -361,49 +415,85 @@ const JobsPage = () => {
           {/* Filter Panel */}
           {showFilters && (
             <div className="mt-4 p-4 bg-muted/50 rounded-lg animate-slide-down">
-              <div className="flex flex-wrap gap-6">
-                {/* Job Type */}
+              <div className="flex flex-col gap-6">
+                <div className="flex flex-wrap gap-6">
+                  {/* Job Type */}
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Job Type</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {jobTypes.map((type) => (
+                        <Button
+                          key={type.value}
+                          variant={typeFilters.includes(type.value) ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => toggleTypeFilter(type.value)}
+                        >
+                          {type.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Experience */}
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Experience</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {experienceLevels.map((level) => (
+                        <Button
+                          key={level.value}
+                          variant={experienceFilters.includes(level.value) ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => toggleExperienceFilter(level.value)}
+                        >
+                          {level.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Remote */}
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="remote"
+                      checked={remoteOnly}
+                      onCheckedChange={(checked) => setRemoteOnly(checked as boolean)}
+                    />
+                    <Label htmlFor="remote" className="text-sm">Remote only</Label>
+                  </div>
+                </div>
+
+                {/* Batch/Year Filter */}
                 <div>
-                  <Label className="text-sm font-medium mb-2 block">Job Type</Label>
+                  <Label className="text-sm font-medium mb-2 block">Eligible Batch / Graduation Year</Label>
                   <div className="flex flex-wrap gap-2">
-                    {jobTypes.map((type) => (
+                    {[2024, 2025, 2026, 2027, 2028, 2029].map((year) => (
                       <Button
-                        key={type.value}
-                        variant={typeFilters.includes(type.value) ? 'default' : 'outline'}
+                        key={year}
+                        variant={batchFilters.includes(year) ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() => toggleTypeFilter(type.value)}
+                        onClick={() => toggleBatchFilter(year)}
                       >
-                        {type.label}
+                        {year}
                       </Button>
                     ))}
                   </div>
                 </div>
 
-                {/* Experience */}
+                {/* Company Filter */}
                 <div>
-                  <Label className="text-sm font-medium mb-2 block">Experience</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {experienceLevels.map((level) => (
+                  <Label className="text-sm font-medium mb-2 block">Company</Label>
+                  <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                    {uniqueCompanies.map((company) => (
                       <Button
-                        key={level.value}
-                        variant={experienceFilters.includes(level.value) ? 'default' : 'outline'}
+                        key={company}
+                        variant={companyFilters.includes(company) ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() => toggleExperienceFilter(level.value)}
+                        onClick={() => toggleCompanyFilter(company)}
                       >
-                        {level.label}
+                        {company}
                       </Button>
                     ))}
                   </div>
-                </div>
-
-                {/* Remote */}
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="remote"
-                    checked={remoteOnly}
-                    onCheckedChange={(checked) => setRemoteOnly(checked as boolean)}
-                  />
-                  <Label htmlFor="remote" className="text-sm">Remote only</Label>
                 </div>
               </div>
 
@@ -469,7 +559,7 @@ const JobsPage = () => {
                   <div className="flex flex-wrap items-start gap-2 mb-2">
                     <Link to={`/jobs/${job.id}`}>
                       <h3 className="text-lg font-semibold hover:text-primary transition-colors">
-                        {job.title}
+                        {job.company.name} -- {job.title}
                       </h3>
                     </Link>
                     {job.isHot && <Badge variant="hot">🔥 Hot</Badge>}
@@ -506,11 +596,19 @@ const JobsPage = () => {
                   <div className="flex flex-wrap gap-2 mb-3">
                     <Badge variant="fullTime" className="capitalize">{job.type.replace('-', ' ')}</Badge>
                     {job.isRemote && <Badge variant="remote">Remote</Badge>}
-                    {job.skills.slice(0, 4).map((skill) => (
+                    {isJobForFreshers(job) && (
+                      <Badge className="bg-red-500/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800">
+                        🔴 Fresher Apply This
+                      </Badge>
+                    )}
+                    {job.batch && job.batch.length > 0 && (
+                      <Badge variant="outline">Batch: {job.batch.join(', ')}</Badge>
+                    )}
+                    {job.skills.slice(0, 3).map((skill) => (
                       <Badge key={skill} variant="outline">{skill}</Badge>
                     ))}
-                    {job.skills.length > 4 && (
-                      <Badge variant="outline">+{job.skills.length - 4} more</Badge>
+                    {job.skills.length > 3 && (
+                      <Badge variant="outline">+{job.skills.length - 3} more</Badge>
                     )}
                   </div>
 

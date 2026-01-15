@@ -169,6 +169,9 @@ export async function createJob(req: Request, res: Response) {
       companyName = company;
     }
 
+    // Parse batch years to numbers
+    const eligibleBatches = batch ? batch.map((b: string) => parseInt(b)).filter((n: number) => !isNaN(n)) : [];
+
     const job = await Job.create({
       title,
       companyId: companyDocId,
@@ -176,6 +179,8 @@ export async function createJob(req: Request, res: Response) {
       description,
       location,
       status: status || "draft",
+      batch,
+      eligibleBatches,
       meta: {
         ...meta,
         isRemote,
@@ -246,6 +251,12 @@ export async function getJob(req: Request, res: Response) {
 export async function updateJob(req: Request, res: Response) {
   try {
     const updates = req.body;
+    
+    // Parse batch years to numbers if batch is provided
+    if (updates.batch) {
+      updates.eligibleBatches = updates.batch.map((b: string) => parseInt(b)).filter((n: number) => !isNaN(n));
+    }
+    
     const job = await Job.findByIdAndUpdate(req.params.id, { $set: updates }, { new: true }).lean();
     if (!job) return res.status(404).json({ error: "not found" });
 

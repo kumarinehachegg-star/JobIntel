@@ -18,6 +18,8 @@ export interface IJob extends mongoose.Document {
   parsedAt?: Date;
   status: string;
   meta?: any;
+  batch?: string[];
+  eligibleBatches?: number[];
   createdAt?: Date;
   postedAt?: Date;
   updatedAt?: Date;
@@ -40,6 +42,8 @@ const JobSchema = new Schema<IJob>(
     parsedAt: Date,
     status: { type: String, default: "draft" },
     meta: Schema.Types.Mixed,
+    batch: [String],
+    eligibleBatches: [Number],
   },
   { timestamps: true }
 );
