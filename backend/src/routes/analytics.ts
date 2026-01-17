@@ -4,13 +4,21 @@ import {
   getRealtimeVisitors,
   getPageAnalytics,
   trackEvent,
+  getUserStats,
+  getJobMatchTrends,
+  getApplicationStatus,
+  getRecentActivity,
 } from "../controllers/analyticsController";
 import { authenticateToken, requireRole } from "../middleware/auth";
 
 const router = Router();
 
-// All analytics endpoints require admin authentication
-router.use(authenticateToken);
+// User-level analytics (requires authentication only)
+router.get("/user-stats", authenticateToken, getUserStats);
+router.get("/job-match-trends", authenticateToken, getJobMatchTrends);
+router.get("/application-status", authenticateToken, getApplicationStatus);
+
+// Admin analytics (requires admin role)
 router.use(requireRole("admin"));
 
 // Get visitor analytics with time range

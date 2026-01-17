@@ -19,6 +19,7 @@ import skillsRoutes from './routes/skills';
 import profileFieldsRoutes from './routes/profileFields';
 import analyticsRoutes from './routes/analytics';
 import resumeRoutes from './routes/resume';
+import activityRoutes from './routes/activity';
 import { trackPageView } from "./middleware/analytics";
 
 dotenv.config();
@@ -129,6 +130,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/profile-fields', profileFieldsRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/activity', activityRoutes);
 app.use('/api/resume', resumeRoutes);
 
 const PORT = process.env.PORT || 4000;

@@ -289,65 +289,92 @@ const DashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">
-              Welcome back, {user.name.split(' ')[0]}! 👋
-            </h1>
-            <p className="text-muted-foreground">
-              Here's what's happening with your job search today.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            {user.tier === 'free' && (
-              <Link to="/pricing">
-                <Button variant="premium">
-                  <Crown className="h-4 w-4 mr-2" />
-                  Upgrade to Premium
-                </Button>
-              </Link>
-            )}
-            <Badge variant={user.tier === 'premium' ? 'premium' : 'free'} className="py-1.5">
-              {user.tier.charAt(0).toUpperCase() + user.tier.slice(1)}
-            </Badge>
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {stats.map((stat, index) => (
-            <div
-              key={stat.label}
-              className="bg-card rounded-xl p-5 border border-border shadow-soft animate-fade-in"
-              style={{ animationDelay: `${index * 0.05}s` }}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                <span className="text-3xl font-bold">{stat.value}</span>
-              </div>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
+      {/* Premium Header Section */}
+      <div className="bg-gradient-to-r from-primary/10 via-accent/5 to-transparent border-b border-border/40">
+        <div className="container mx-auto px-6 py-10">
+          {/* Top Row: Header & Actions */}
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Welcome back, {user.name.split(' ')[0]}! 👋
+              </h1>
+              <p className="text-base text-muted-foreground">
+                Here's your job search overview at a glance
+              </p>
             </div>
-          ))}
+            <div className="flex items-center gap-3 flex-wrap">
+              {user.tier === 'free' && (
+                <Link to="/pricing">
+                  <Button variant="premium" className="gap-2 shadow-md hover:shadow-lg transition-shadow">
+                    <Crown className="h-4 w-4" />
+                    Upgrade to Premium
+                  </Button>
+                </Link>
+              )}
+              <Badge 
+                variant={user.tier === 'premium' ? 'premium' : user.tier === 'ultra' ? 'premium' : 'default'} 
+                className="px-4 py-2 text-sm font-medium"
+              >
+                {user.tier === 'free' ? '🔓 Free' : user.tier === 'premium' ? '⭐ Premium' : '👑 Ultra'}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Stats Grid - Enhanced */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {stats.map((stat, index) => (
+              <div
+                key={stat.label}
+                className="bg-gradient-to-br from-card to-card/50 rounded-xl p-6 border border-border/60 hover:border-border hover:shadow-md transition-all duration-300 animate-fade-in backdrop-blur-sm"
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`p-3 rounded-lg bg-${stat.color === 'text-primary' ? 'primary' : stat.color === 'text-accent' ? 'accent' : 'success'}/10`}>
+                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                  </div>
+                  <span className="text-3xl font-bold text-foreground">{stat.value}</span>
+                </div>
+                <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-10">
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Profile Completion */}
-            <div className="bg-card rounded-xl p-6 border border-border">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold">Profile Completion</h2>
-                <Button variant="ghost" size="sm" onClick={() => setEditProfileOpen(true)}>
-                  <Settings className="h-4 w-4 mr-2" />
-                  Edit Profile
+          <div className="lg:col-span-2 space-y-8">
+            {/* Profile Completion - Enhanced */}
+            <div className="bg-gradient-to-br from-card to-card/50 rounded-xl p-7 border border-border/60 hover:border-border transition-all">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-lg font-semibold flex items-center gap-2 mb-1">
+                    <Target className="h-5 w-5 text-accent" />
+                    Profile Strength
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Complete your profile to improve job matching
+                  </p>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setEditProfileOpen(true)}
+                  className="hover:bg-primary/10"
+                >
+                  <Settings className="h-4 w-4" />
                 </Button>
               </div>
-              <Progress value={user.profileCompletion || 0} className="h-2 mb-3" />
-              <p className="text-sm text-muted-foreground">
-                Your profile is {user.profileCompletion || 0}% complete. Add more skills to improve job matching.
-              </p>
+              <div className="space-y-3">
+                <Progress value={user.profileCompletion || 0} className="h-3 rounded-full" />
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-foreground">{user.profileCompletion || 0}% Complete</span>
+                  <span className="text-xs text-muted-foreground">Keep improving!</span>
+                </div>
+              </div>
             </div>
 
             {/* Edit Profile Dialog */}
@@ -440,17 +467,17 @@ const DashboardPage = () => {
               </DialogContent>
             </Dialog>
 
-            {/* Top Job Matches */}
-            <div className="bg-card rounded-xl p-6 border border-border">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold flex items-center gap-2">
+            {/* Top Job Matches - Enhanced */}
+            <div className="bg-gradient-to-br from-card to-card/50 rounded-xl p-7 border border-border/60">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
                   <Zap className="h-5 w-5 text-accent" />
                   Top Job Matches
                 </h2>
                 <Link to="/jobs">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="outline" size="sm" className="gap-1">
                     View All
-                    <ChevronRight className="h-4 w-4 ml-1" />
+                    <ChevronRight className="h-4 w-4" />
                   </Button>
                 </Link>
               </div>
@@ -459,40 +486,43 @@ const DashboardPage = () => {
                 {matchedJobs.slice(0, 3).map((job, index) => (
                   <div
                     key={job.id || job._id || `match-${index}`}
-                    className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors animate-fade-in"
+                    className="group p-5 rounded-xl bg-muted/50 hover:bg-muted border border-transparent hover:border-border/40 transition-all duration-300 animate-fade-in cursor-pointer"
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    <div className="h-12 w-12 rounded-lg bg-background flex items-center justify-center flex-shrink-0">
-                      <Building2 className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <Link to={`/jobs/${job.id || job._id}`}> 
-                            <h3 className="font-medium hover:text-primary transition-colors line-clamp-1">
-                              {job.title || job.name || 'Untitled Job'}
-                            </h3>
-                          </Link>
-                          <p className="text-sm text-muted-foreground">{job.company?.name || job.meta?.company || 'Company'}</p>
-                        </div>
-                        <Badge variant="success" className="flex-shrink-0">
-                          <TrendingUp className="h-3 w-3 mr-1" />
-                          {job.matchScore}%
-                        </Badge>
+                    <div className="flex items-start gap-4">
+                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                        <Building2 className="h-6 w-6 text-primary" />
                       </div>
-                      <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {job.location}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {new Date(job.postedAt).toLocaleDateString()}
-                        </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                          <div className="flex-1 min-w-0">
+                            <Link to={`/jobs/${job.id || job._id}`}> 
+                              <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                                {job.title || job.name || 'Untitled Job'}
+                              </h3>
+                            </Link>
+                            <p className="text-sm text-muted-foreground line-clamp-1">{job.company?.name || job.meta?.company || 'Company'}</p>
+                          </div>
+                          <Badge variant="success" className="flex-shrink-0 whitespace-nowrap">
+                            <TrendingUp className="h-3 w-3 mr-1" />
+                            {job.matchScore}%
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {job.location}
+                          </span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {new Date(job.postedAt).toLocaleDateString()}
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <a href={job.applyLink} target="_blank" rel="noopener noreferrer">
-                      <Button variant="accent" size="sm">
+                      <Button variant="accent" size="sm" className="mt-3">
                         Apply
                         <ExternalLink className="h-3 w-3 ml-1" />
                       </Button>
@@ -502,65 +532,75 @@ const DashboardPage = () => {
               </div>
             </div>
 
-            {/* Recent Applications */}
-            <div className="bg-card rounded-xl p-6 border border-border">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold flex items-center gap-2">
+            {/* Recent Applications - Enhanced */}
+            <div className="bg-gradient-to-br from-card to-card/50 rounded-xl p-7 border border-border/60">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
                   <FileText className="h-5 w-5 text-primary" />
                   Recent Applications
                 </h2>
                 <Link to="/applications">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="outline" size="sm" className="gap-1">
                     View All
-                    <ChevronRight className="h-4 w-4 ml-1" />
+                    <ChevronRight className="h-4 w-4" />
                   </Button>
                 </Link>
               </div>
 
               <div className="space-y-4">
-                {recentApplications.map((app, index) => (
-                  <div
-                    key={app._id || app.id || `app-${index}`}
-                    className="flex items-center gap-4 p-4 rounded-lg bg-muted/50 animate-fade-in"
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <div className="h-10 w-10 rounded-lg bg-background flex items-center justify-center flex-shrink-0">
-                      <Building2 className="h-5 w-5 text-muted-foreground" />
+                {recentApplications && recentApplications.length > 0 ? (
+                  recentApplications.slice(0, 5).map((app, index) => (
+                    <div
+                      key={app._id || app.id || `app-${index}`}
+                      className="group p-5 rounded-xl bg-muted/50 hover:bg-muted border border-transparent hover:border-border/40 transition-all duration-300 animate-fade-in"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                          <Building2 className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-foreground line-clamp-1">{app.job?.title || 'Untitled Job'}</h3>
+                          <p className="text-sm text-muted-foreground">{app.job?.company?.name || 'Company'}</p>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {getStatusBadge(app.status)}
+                          {app.autoApplied && (
+                            <Badge variant="secondary" className="gap-1 text-xs">
+                              <Zap className="h-3 w-3" />
+                              Auto
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium line-clamp-1">{app.job?.title || 'Untitled Job'}</h3>
-                      <p className="text-sm text-muted-foreground">{app.job?.company?.name || 'Company'}</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {getStatusBadge(app.status)}
-                      {app.autoApplied && (
-                        <Badge variant="secondary" className="gap-1">
-                          <Zap className="h-3 w-3" />
-                          Auto
-                        </Badge>
-                      )}
-                    </div>
+                  ))
+                ) : (
+                  <div className="p-8 text-center">
+                    <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-50" />
+                    <p className="text-muted-foreground font-medium mb-2">No applications yet</p>
+                    <p className="text-sm text-muted-foreground">Start applying to jobs to see them here</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Notification Preferences */}
-            <div className="bg-card rounded-xl p-6 border border-border">
-              <h2 className="font-semibold mb-4 flex items-center gap-2">
-                <Bell className="h-5 w-5" />
+          <div className="space-y-8">
+            {/* Notification Preferences - Enhanced */}
+            <div className="bg-gradient-to-br from-card to-card/50 rounded-xl p-7 border border-border/60">
+              <h2 className="font-semibold mb-6 flex items-center gap-2">
+                <Bell className="h-5 w-5 text-accent" />
                 Notification Channels
               </h2>
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                    <div className="h-9 w-9 rounded-lg bg-green-500/15 flex items-center justify-center">
                       <MessageCircle className="h-4 w-4 text-green-600" />
                     </div>
-                    <Label htmlFor="whatsapp">WhatsApp</Label>
+                    <Label htmlFor="whatsapp" className="font-medium cursor-pointer">WhatsApp</Label>
                   </div>
                   <Switch
                     id="whatsapp"
@@ -568,12 +608,12 @@ const DashboardPage = () => {
                     disabled={user.tier === 'free'}
                   />
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <div className="h-9 w-9 rounded-lg bg-blue-500/15 flex items-center justify-center">
                       <Mail className="h-4 w-4 text-blue-600" />
                     </div>
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="font-medium cursor-pointer">Email</Label>
                   </div>
                   <Switch
                     id="email"
@@ -581,12 +621,12 @@ const DashboardPage = () => {
                     disabled={user.tier === 'free'}
                   />
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 hover:bg-muted/60 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-sky-500/10 flex items-center justify-center">
+                    <div className="h-9 w-9 rounded-lg bg-sky-500/15 flex items-center justify-center">
                       <Send className="h-4 w-4 text-sky-600" />
                     </div>
-                    <Label htmlFor="telegram">Telegram</Label>
+                    <Label htmlFor="telegram" className="font-medium cursor-pointer">Telegram</Label>
                   </div>
                   <Switch
                     id="telegram"
@@ -595,72 +635,93 @@ const DashboardPage = () => {
                   />
                 </div>
                 {user.tier === 'free' && (
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Upgrade to Premium to enable notifications.
-                  </p>
+                  <div className="mt-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                    <p className="text-xs text-amber-900 dark:text-amber-200 font-medium">
+                      💎 Upgrade to Premium to enable notifications
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
 
-            {/* Skills */}
-            <div className="bg-card rounded-xl p-6 border border-border">
-              <h2 className="font-semibold mb-4">Your Skills</h2>
-              <div className="flex flex-wrap gap-2">
-                {user.skills.map((skill) => (
-                  <Badge key={skill} variant="secondary">
-                    {skill}
-                  </Badge>
-                ))}
+            {/* Skills - Enhanced */}
+            <div className="bg-gradient-to-br from-card to-card/50 rounded-xl p-7 border border-border/60">
+              <h2 className="font-semibold mb-4 flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-accent" />
+                Your Skills
+              </h2>
+              <div className="flex flex-wrap gap-2 mb-4 min-h-10">
+                {user.skills && user.skills.length > 0 ? (
+                  user.skills.map((skill) => (
+                    <Badge key={skill} variant="secondary" className="px-3 py-1.5 font-medium">
+                      ✓ {skill}
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">No skills added yet</p>
+                )}
               </div>
-              <Button variant="ghost" size="sm" className="mt-4 w-full" onClick={() => setEditSkillsOpen(true)}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full font-medium hover:bg-primary/5"
+                onClick={() => setEditSkillsOpen(true)}
+              >
                 + Add More Skills
               </Button>
             </div>
 
-            {/* Quick Actions */}
-            <div className="bg-card rounded-xl p-6 border border-border">
-              <h2 className="font-semibold mb-4">Quick Actions</h2>
-              <div className="space-y-2">
+            {/* Quick Actions - Enhanced */}
+            <div className="bg-gradient-to-br from-card to-card/50 rounded-xl p-7 border border-border/60">
+              <h2 className="font-semibold mb-6 flex items-center gap-2">
+                <Zap className="h-5 w-5 text-accent" />
+                Quick Actions
+              </h2>
+              <div className="space-y-3">
                 <Link to="/jobs">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Briefcase className="h-4 w-4 mr-2" />
+                  <Button variant="outline" className="w-full justify-start font-medium hover:bg-primary/10 transition-colors">
+                    <Briefcase className="h-4 w-4 mr-3" />
                     Browse Jobs
                   </Button>
                 </Link>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start"
+                  className="w-full justify-start font-medium hover:bg-accent/10 transition-colors"
                   onClick={() => setResumeUploadOpen(true)}
                 >
-                  <FileText className="h-4 w-4 mr-2" />
+                  <FileText className="h-4 w-4 mr-3" />
                   Upload Resume
                 </Button>
                 <Link to="/settings">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Settings className="h-4 w-4 mr-2" />
+                  <Button variant="outline" className="w-full justify-start font-medium hover:bg-secondary/10 transition-colors">
+                    <Settings className="h-4 w-4 mr-3" />
                     Settings
                   </Button>
                 </Link>
               </div>
             </div>
 
-            {/* Upgrade CTA */}
+            {/* Upgrade CTA - Enhanced */}
             {user.tier !== 'ultra' && (
-              <div className="gradient-hero rounded-xl p-6 text-white">
-                <h3 className="font-semibold mb-2">
-                  {user.tier === 'free' ? 'Unlock Premium Features' : 'Go Ultra Premium'}
-                </h3>
-                <p className="text-sm text-white/80 mb-4">
-                  {user.tier === 'free'
-                    ? 'Get AI matching, instant notifications, and early job access.'
-                    : 'Enable auto-apply, AI cover letters, and priority support.'}
-                </p>
-                <Link to="/pricing">
-                  <Button variant="heroOutline" className="w-full">
-                    Upgrade Now
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </Link>
+              <div className="relative overflow-hidden rounded-xl p-7 border border-primary/30 bg-gradient-to-br from-primary/5 via-accent/5 to-primary/5 backdrop-blur-sm">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-50" />
+                <div className="relative z-10">
+                  <h3 className="font-semibold mb-2 text-foreground flex items-center gap-2">
+                    <Crown className="h-4 w-4 text-amber-500" />
+                    {user.tier === 'free' ? '🔓 Unlock Premium' : '👑 Go Ultra'}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-5">
+                    {user.tier === 'free'
+                      ? 'Get AI matching, instant notifications, and early job access.'
+                      : 'Enable auto-apply, AI cover letters, and priority support.'}
+                  </p>
+                  <Link to="/pricing" className="block">
+                    <Button className="w-full bg-gradient-to-r from-primary to-accent text-white font-medium shadow-md hover:shadow-lg transition-shadow">
+                      {user.tier === 'free' ? 'Upgrade to Premium' : 'Go Ultra'}
+                      <ChevronRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
             )}
           </div>

@@ -3,6 +3,8 @@ import {
   uploadResume,
   getResumeStatus,
   getMatchingJobs,
+  deleteResume,
+  downloadResume,
   upload,
 } from "../controllers/resumeController";
 import { authenticateToken } from "../middleware/auth";
@@ -30,5 +32,17 @@ router.get("/status", getResumeStatus);
  * Query params: minScore (default 70)
  */
 router.get("/matching-jobs", getMatchingJobs);
+
+/**
+ * GET /api/resume/download
+ * Download user's resume
+ */
+router.get("/download", downloadResume);
+
+/**
+ * DELETE /api/resume/:id
+ * Delete user's resume
+ */
+router.delete("/:id", deleteResume);
 
 export default router;

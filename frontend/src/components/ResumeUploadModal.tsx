@@ -55,7 +55,7 @@ export const ResumeUploadModal = ({ open, onOpenChange }: ResumeUploadModalProps
 
     try {
       // Get token from auth store
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem('token');
       if (!token) {
         setError('Authentication required');
         setLoading(false);
@@ -64,9 +64,9 @@ export const ResumeUploadModal = ({ open, onOpenChange }: ResumeUploadModalProps
 
       // Upload resume
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('resume', file);
 
-      const uploadResponse = await fetch('/api/resumes/upload', {
+      const uploadResponse = await fetch('/api/resume/upload', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -75,8 +75,19 @@ export const ResumeUploadModal = ({ open, onOpenChange }: ResumeUploadModalProps
       });
 
       if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json();
-        throw new Error(errorData.message || 'Failed to upload resume');
+        let errorMessage = 'Failed to upload resume';
+        try {
+          const contentType = uploadResponse.headers.get('content-type');
+          if (contentType?.includes('application/json')) {
+            const errorData = await uploadResponse.json();
+            errorMessage = errorData.message || errorData.error || errorMessage;
+          } else {
+            errorMessage = `Server error: ${uploadResponse.status} ${uploadResponse.statusText}`;
+          }
+        } catch (e) {
+          errorMessage = `Server error: ${uploadResponse.status} ${uploadResponse.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const uploadResult = await uploadResponse.json();
@@ -84,7 +95,7 @@ export const ResumeUploadModal = ({ open, onOpenChange }: ResumeUploadModalProps
       setResumeStatus(uploadResult);
 
       // Fetch matching jobs
-      const matchesResponse = await fetch('/api/resumes/matching-jobs', {
+      const matchesResponse = await fetch('/api/resume/matching-jobs', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

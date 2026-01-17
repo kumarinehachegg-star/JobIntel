@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useAuthStore } from "./store/authStore";
 import { MainLayout } from "./components/layout/MainLayout";
 import { AdminLayout } from "./components/admin/AdminLayout";
+import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
@@ -15,6 +16,13 @@ import JobsPage from "./pages/JobsPage";
 import JobDetailPage from "./pages/JobDetailPage";
 import PricingPage from "./pages/PricingPage";
 import DashboardPage from "./pages/DashboardPage";
+import OverviewPage from "./pages/dashboard/OverviewPage";
+import ProfilePage from "./pages/dashboard/ProfilePage";
+import ResumePage from "./pages/dashboard/ResumePage";
+import SkillsPage from "./pages/dashboard/SkillsPage";
+import ApplicationsPage from "./pages/dashboard/ApplicationsPage";
+import NotificationsPage from "./pages/dashboard/NotificationsPage";
+import SettingsPage from "./pages/dashboard/SettingsPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminJobs from "./pages/admin/AdminJobs";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -49,14 +57,25 @@ const AppContent = () => {
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/jobs/:id" element={<JobDetailPage />} />
         <Route path="/pricing" element={<PricingPage />} />
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute requiredRole="user">
-              <DashboardPage />
-            </ProtectedRoute>
-          } 
-        />
+      </Route>
+
+      {/* Dashboard pages with professional sidebar layout */}
+      <Route 
+        element={
+          <ProtectedRoute requiredRole="user">
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/dashboard" element={<OverviewPage />} />
+        <Route path="/dashboard/overview" element={<OverviewPage />} />
+        <Route path="/dashboard/profile" element={<ProfilePage />} />
+        <Route path="/dashboard/resume" element={<ResumePage />} />
+        <Route path="/dashboard/skills" element={<SkillsPage />} />
+        <Route path="/dashboard/applications" element={<ApplicationsPage />} />
+        <Route path="/dashboard/notifications" element={<NotificationsPage />} />
+        <Route path="/dashboard/settings" element={<SettingsPage />} />
+        <Route path="/dashboard/legacy" element={<DashboardPage />} />
       </Route>
 
       {/* Admin pages with admin layout - for admin users only */}

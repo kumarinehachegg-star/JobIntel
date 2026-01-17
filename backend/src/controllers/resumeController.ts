@@ -80,13 +80,71 @@ export async function getResumeStatus(req: Request, res: Response) {
     const hasResume = await userHasResume(user._id.toString());
 
     return res.json({
+      id: user._id.toString(),
       hasResume,
       resumeText: hasResume ? user.resume?.rawText?.substring(0, 200) : null,
       lastUpdated: user.resume?.parsedAt || null,
+      format: 'pdf',
+      status: 'Processed',
+      parsedAt: user.resume?.parsedAt || new Date().toISOString(),
     });
   } catch (error) {
     console.error("Error getting resume status:", error);
     return res.status(500).json({ error: "Failed to get resume status" });
+  }
+}
+
+/**
+ * Delete user's resume
+ * DELETE /api/resume/:id
+ */
+export async function deleteResume(req: Request, res: Response) {
+  try {
+    const user = (req as any).user;
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // Clear the resume from the user document
+    const { User } = await import("../models/User");
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      { $unset: { resume: 1 } },
+      { new: true }
+    );
+
+    return res.json({
+      success: true,
+      message: "Resume deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting resume:", error);
+    return res.status(500).json({ error: "Failed to delete resume" });
+  }
+}
+
+/**
+ * Download user's resume
+ * GET /api/resume/download
+ */
+export async function downloadResume(req: Request, res: Response) {
+  try {
+    const user = (req as any).user;
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    if (!user.resume?.rawText) {
+      return res.status(404).json({ error: "No resume found" });
+    }
+
+    // Return resume as downloadable file
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Disposition', 'attachment; filename="resume.pdf"');
+    res.send(user.resume.rawText);
+  } catch (error) {
+    console.error("Error downloading resume:", error);
+    return res.status(500).json({ error: "Failed to download resume" });
   }
 }
 

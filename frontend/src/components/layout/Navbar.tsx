@@ -80,6 +80,18 @@ export const Navbar = () => {
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated && user ? (
               <>
+                {/* Go to Dashboard Button */}
+                <Link to="/dashboard">
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="gap-2 bg-gradient-to-r from-primary to-accent"
+                  >
+                    <User className="h-4 w-4" />
+                    Dashboard
+                  </Button>
+                </Link>
+
                 {/* Notifications */}
                 <NotificationDropdown />
 
@@ -174,9 +186,12 @@ export const Navbar = () => {
               {isAuthenticated && user ? (
                 <>
                   <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start gap-2">
+                    <Button 
+                      variant="default" 
+                      className="w-full justify-start gap-2 bg-gradient-to-r from-primary to-accent"
+                    >
                       <User className="h-4 w-4" />
-                      Dashboard
+                      Go to Dashboard
                     </Button>
                   </Link>
                   <Button
