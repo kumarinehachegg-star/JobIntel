@@ -158,13 +158,13 @@ const ApplicationsPage = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total Applications', value: stats.total, icon: '📊', color: 'from-blue-600 to-blue-400' },
-          { label: 'Applied', value: stats.applied, icon: '📤', color: 'from-purple-600 to-purple-400' },
-          { label: 'Interviews', value: stats.interview, icon: '🎙️', color: 'from-yellow-600 to-yellow-400' },
-          { label: 'Offers', value: stats.offer, icon: '✅', color: 'from-green-600 to-green-400' },
-        ].map((stat, idx) => (
+          { id: 'total', label: 'Total Applications', value: stats.total, icon: '📊', color: 'from-blue-600 to-blue-400' },
+          { id: 'applied', label: 'Applied', value: stats.applied, icon: '📤', color: 'from-purple-600 to-purple-400' },
+          { id: 'interviews', label: 'Interviews', value: stats.interview, icon: '🎙️', color: 'from-yellow-600 to-yellow-400' },
+          { id: 'offers', label: 'Offers', value: stats.offer, icon: '✅', color: 'from-green-600 to-green-400' },
+        ].map((stat) => (
           <div
-            key={idx}
+            key={stat.id}
             className={`bg-gradient-to-br ${stat.color} text-white rounded-xl p-6`}
           >
             <p className="text-sm opacity-90 mb-2">{stat.label}</p>

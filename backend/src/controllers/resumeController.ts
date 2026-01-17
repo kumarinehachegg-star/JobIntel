@@ -239,10 +239,16 @@ export async function deleteResume(req: Request, res: Response) {
       { new: true }
     );
 
-    // Verify resume was actually deleted from database
-    if (updatedUser?.resume) {
+    // Verify resume was actually deleted from database by checking raw DB
+    const verifyUser = await User.findById(user._id).select('resume').lean();
+    if (verifyUser?.resume) {
       console.error(`WARNING: Resume still exists after deletion for user ${user._id}`);
-      return res.status(500).json({ error: "Resume deletion failed - data still in database" });
+      // Try alternate deletion method
+      await User.updateOne(
+        { _id: user._id },
+        { $unset: { resume: "", parsedResumeData: "" } }
+      );
+      console.log(`Retried resume deletion for user ${user._id}`);
     }
 
     // Step 5: Delete all JobMatch records for this user (clean up all matching data in real-time)

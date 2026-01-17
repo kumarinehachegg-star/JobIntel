@@ -19,16 +19,39 @@ const SkillsPage = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Get skills from user object
+    // Get skills from user object and fetch fresh data
     if (user) {
       setSkills(user.skills || []);
       // Get auto-parsed skills from parsedResumeData if available
       if ((user as any).parsedResumeData?.parsedSkills) {
         setParsedSkills((user as any).parsedResumeData.parsedSkills);
       }
+      // Fetch fresh user data to ensure we have latest parsed skills
+      fetchUserProfile();
     }
     fetchAvailableSkills();
   }, [user]);
+
+  const fetchUserProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token || !user?.id) return;
+
+      const response = await fetch(`/api/users/${user.id}`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setSkills(userData.skills || []);
+        if (userData.parsedResumeData?.parsedSkills) {
+          setParsedSkills(userData.parsedResumeData.parsedSkills);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch user profile:', err);
+    }
+  };
 
   const fetchAvailableSkills = async () => {
     try {
